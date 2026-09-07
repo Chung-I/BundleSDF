@@ -15,7 +15,8 @@ from torch.utils.cpp_extension import load
 code_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-nvcc_flags = ['-Xcompiler', '-O3', '-std=c++17', '-U__CUDA_NO_HALF_OPERATORS__', '-U__CUDA_NO_HALF_CONVERSIONS__', '-U__CUDA_NO_HALF2_OPERATORS__', '-arch=sm_86']
+# blackwell-port: -arch was sm_86; RTX 5090 is compute capability 12.0 (sm_120)
+nvcc_flags = ['-Xcompiler', '-O3', '-std=c++17', '-U__CUDA_NO_HALF_OPERATORS__', '-U__CUDA_NO_HALF_CONVERSIONS__', '-U__CUDA_NO_HALF2_OPERATORS__', '-arch=sm_120']
 c_flags = ['-O3', '-std=c++17']
 
 setup(

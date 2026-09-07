@@ -16,10 +16,12 @@ set(CMAKE_BUILD_TYPE Release)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -g")
 # set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Xcompiler -fPIC -gencode arch=compute_30,code=sm_30 -gencode arch=compute_75,code=sm_75 -O0 -G -g -std=c++17 -lineinfo -use_fast_math --default-stream per-thread")
 # set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Xcompiler -fPIC -gencode arch=compute_30,code=sm_30 -gencode arch=compute_35,code=sm_35 -gencode arch=compute_75,code=sm_75 -O3 -std=c++17 -use_fast_math --default-stream per-thread")
-set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -dc -gencode=arch=compute_86,code=sm_86 -gencode=arch=compute_52,code=sm_52  -gencode=arch=compute_60,code=sm_60   -gencode=arch=compute_61,code=sm_61   -gencode=arch=compute_70,code=sm_70   -gencode=arch=compute_75,code=sm_75   -gencode=arch=compute_80,code=sm_80  -O3 -std=c++17 -use_fast_math --default-stream per-thread")
+# blackwell-port: was a fixed sm_52..sm_86 gencode list, which produces no code for
+# sm_120 (RTX 5090, compute capability 12.0). Build for the local arch only.
+set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -dc -gencode=arch=compute_120,code=sm_120 -O3 -std=c++17 -use_fast_math --default-stream per-thread")
 
 # Set CUDA architectures to avoid warnings
-set(CMAKE_CUDA_ARCHITECTURES 52 60 61 70 75 80 86)
+set(CMAKE_CUDA_ARCHITECTURES 120)  # blackwell-port: was 52 60 61 70 75 80 86
 
 # if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
 #   set(COMPILE_OPTIONS "-fopenmp -march=native -msse -msse2 -msse3 -msse4 -msse4.2 -mavx2 -ftree-vectorize -O3")
@@ -38,6 +40,11 @@ add_definitions(-DCUDA_MATCHING=1)
 # add_definitions(-DDEBUG=1)
 
 # Add PCL installation path to CMAKE_PREFIX_PATH using a relative path
+# blackwell-port: dependencies come from a conda-forge env instead of the source builds
+# that setup.bash put in ../local (those needed sudo apt + hours of compiling).
+if(DEFINED ENV{BUNDLESDF_DEPS_PREFIX})
+  set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};$ENV{BUNDLESDF_DEPS_PREFIX}")
+endif()
 set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${PROJECT_SOURCE_DIR}/../local")
 
 # Set PCL_DIR explicitly if CMake can't find it automatically, using a relative path
