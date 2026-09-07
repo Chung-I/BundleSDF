@@ -108,8 +108,19 @@ PY="$BUNDLESDF_DIR/.venv/bin/python"
 "$PY" -m pip install \
   trimesh opencv-python wandb matplotlib imageio tqdm open3d ruamel.yaml sacred \
   kornia pymongo scipy scikit-image networkx transformations einops gputil xatlas \
-  rtree pytinyrenderer chardet openpyxl pyrender PyOpenGL-accelerate
+  rtree pytinyrenderer chardet openpyxl pyrender PyOpenGL-accelerate \
+  dearpygui pymeshlab yacs
 "$PY" -c "import imageio; imageio.plugins.freeimage.download()" || true
+
+# LoFTR weights: loftr_wrapper.py loads BundleTrack/LoFTR/weights/outdoor_ds.ckpt at
+# runtime and the directory ships empty.
+if [ ! -f "$BUNDLESDF_DIR/BundleTrack/LoFTR/weights/outdoor_ds.ckpt" ]; then
+  "$PY" -m pip install gdown
+  mkdir -p "$BUNDLESDF_DIR/BundleTrack/LoFTR/weights"
+  "$PY" -m gdown --folder \
+    "https://drive.google.com/drive/folders/1xu2Pq6mZT5hmFgiYMBT9Zt8h1yO-3SIp" \
+    -O "$BUNDLESDF_DIR/BundleTrack/LoFTR/weights"
+fi
 
 # ---------------------------------------------------------------------------
 # 4. OpenCV 4.12.0 + contrib, with CUDA  (the one unavoidable source build)
@@ -155,9 +166,16 @@ fi
   "git+https://github.com/NVIDIAGameWorks/kaolin.git@v0.18.0"
 
 # BundleSDF's own extension. mycuda/setup.py had -arch=sm_86 hardcoded; it is sm_120 now.
+# NOTE: editable (-e) is required, not a preference. setup.py declares top-level
+# extensions named "common"/"gridencoder", but Utils.py does `from mycuda import common`.
+# A non-editable install puts common.so in site-packages as a *top-level* module and
+# leaves mycuda/ without it, so that import fails with
+#   ImportError: cannot import name 'common' from 'mycuda' (unknown location)
+# and a NeRF worker process then dies, leaving the parent blocked on its pipe forever.
+# -e builds the .so in place inside mycuda/, which makes it a real submodule.
 cd "$BUNDLESDF_DIR/mycuda"
 rm -rf build ./*egg*
-"$PY" -m pip install --no-build-isolation .
+"$PY" -m pip install --no-build-isolation -e .
 
 # ---------------------------------------------------------------------------
 # 6. BundleTrack (C++)
@@ -195,6 +213,12 @@ BundleSDF setup complete.
   opencv : $OCV_PREFIX  (CUDA build)
   cuda   : $CUDA_HOME
 
-Library paths are baked into the .so files, so only PYTHONPATH is needed:
+Library paths are baked into the .so files, but one preload is still required:
+  export LD_PRELOAD=$DEPS_ENV/lib/libjpeg.so.8
   export PYTHONPATH=$BUNDLESDF_DIR:$BUNDLESDF_DIR/BundleTrack/build:\$PYTHONPATH
+
+torchvision bundles its own libjpeg whose SONAME is also libjpeg.so.8 but which lacks
+the jpeg12_* symbols. bundlesdf.py imports torch/torchvision before my_cpp, so the
+loader reuses torchvision's copy and conda's libtiff.so.6 then fails with
+"undefined symbol: jpeg12_write_raw_data". Preloading conda's libjpeg fixes it.
 EOF
