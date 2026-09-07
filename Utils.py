@@ -277,8 +277,8 @@ def chamfer_distance_between_clouds_mutual(pts1,pts2):
 
 def trimesh_clean(mesh):
   mesh.merge_vertices()
-  mesh.remove_degenerate_faces()
-  mesh.remove_duplicate_faces()
+  mesh.update_faces(mesh.nondegenerate_faces())
+  mesh.update_faces(mesh.unique_faces())
   mesh.remove_infinite_values()
   mesh.remove_unreferenced_vertices()
   return mesh

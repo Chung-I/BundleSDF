@@ -1055,8 +1055,8 @@ class BundleSdf:
         )
 
         # Clean the mesh.
-        mesh.remove_degenerate_faces()
-        mesh.remove_duplicate_faces()
+        mesh.update_faces(mesh.nondegenerate_faces())
+        mesh.update_faces(mesh.unique_faces())
         mesh.merge_vertices()
 
         # Remove floaters around the main mesh by selecting the largest connected component.
