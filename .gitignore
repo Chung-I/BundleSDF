@@ -143,3 +143,5 @@ logs/
 run_used.yml
 local
 test
+.opencv_build/
+local/

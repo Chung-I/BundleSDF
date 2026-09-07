@@ -12,6 +12,7 @@
 #include "FeatureManager.h"
 #include "cuda_ransac.h"
 #include <opencv2/cudafeatures2d.hpp>
+#include <pcl/common/geometry.h>  // blackwell-port: PCL >=1.11 no longer pulls this in transitively (pcl::geometry::distance)
 
 using namespace std;
 
