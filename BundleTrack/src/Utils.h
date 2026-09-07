@@ -214,29 +214,29 @@ int str2type(std::string s);
 float rotationGeodesicDistance(const Eigen::Matrix3f &R1, const Eigen::Matrix3f &R2);
 float rotationGeodesicDistanceIgnoreRotationAroundCamZ(const Eigen::Matrix3f &R1, const Eigen::Matrix3f &R2);
 template<class PointT>
-void convert3dOrganizedRGB(cv::Mat &objDepth, cv::Mat &colImage, Eigen::Matrix3f &camIntrinsic, boost::shared_ptr<pcl::PointCloud<PointT>> objCloud);
+void convert3dOrganizedRGB(cv::Mat &objDepth, cv::Mat &colImage, Eigen::Matrix3f &camIntrinsic, std::shared_ptr<pcl::PointCloud<PointT>> objCloud);
 template<class PointT>
-float pointToPlaneICP(boost::shared_ptr<pcl::PointCloud<PointT> > pclSegment,
-                     boost::shared_ptr<pcl::PointCloud<PointT> > pclModel,
+float pointToPlaneICP(std::shared_ptr<pcl::PointCloud<PointT> > pclSegment,
+                     std::shared_ptr<pcl::PointCloud<PointT> > pclModel,
                      Eigen::Matrix4f &offsetTransform, int max_iter=30, float rejection_angle=60, float max_corres_dist=0.01, float score_thres=1e-4);
 
 float pointToPointICP(pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr src,pcl::PointCloud<pcl::PointXYZRGBNormal>::Ptr dst,                Eigen::Matrix4f &offsetTransform, int max_iter, float rejection_angle, float max_corres_dist, float score_thres);
 
 
 template<class PointT>
-void outlierRemovalRadius(boost::shared_ptr<pcl::PointCloud<PointT> > cloud_in, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_out, float radius, int min_num);
+void outlierRemovalRadius(std::shared_ptr<pcl::PointCloud<PointT> > cloud_in, std::shared_ptr<pcl::PointCloud<PointT> > cloud_out, float radius, int min_num);
 
 template<class PointT>
-void outlierRemovalStatistic(boost::shared_ptr<pcl::PointCloud<PointT> > cloud_in, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_out, float std_mul, int num);
+void outlierRemovalStatistic(std::shared_ptr<pcl::PointCloud<PointT> > cloud_in, std::shared_ptr<pcl::PointCloud<PointT> > cloud_out, float std_mul, int num);
 
 template<class PointType>
-void downsamplePointCloud(boost::shared_ptr<pcl::PointCloud<PointType> > cloud_in, boost::shared_ptr<pcl::PointCloud<PointType> > cloud_out, float vox_size);
+void downsamplePointCloud(std::shared_ptr<pcl::PointCloud<PointType> > cloud_in, std::shared_ptr<pcl::PointCloud<PointType> > cloud_out, float vox_size);
 
 template<class PointT>
-void passFilterPointCloud(boost::shared_ptr<pcl::PointCloud<PointT> > cloud_in, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_out, const std::string &axis, float min, float max);
+void passFilterPointCloud(std::shared_ptr<pcl::PointCloud<PointT> > cloud_in, std::shared_ptr<pcl::PointCloud<PointT> > cloud_out, const std::string &axis, float min, float max);
 
 template <class PointT>
-void calNormalIntegralImage(boost::shared_ptr<pcl::PointCloud<PointT>> cloud, int method, float max_depth_change_factor, float smooth_size,bool depth_dependent_smooth);
+void calNormalIntegralImage(std::shared_ptr<pcl::PointCloud<PointT>> cloud, int method, float max_depth_change_factor, float smooth_size,bool depth_dependent_smooth);
 
 
 template <typename T>
@@ -247,7 +247,7 @@ void normalizeRotationMatrix(Eigen::Matrix3f &R);
 void normalizeRotationMatrix(Eigen::Matrix4f &pose);
 
 template<class PointT>
-void cloudAMinusCloudB(boost::shared_ptr<pcl::PointCloud<PointT>> cloudA, boost::shared_ptr<pcl::PointCloud<PointT>> cloudB, boost::shared_ptr<pcl::PointCloud<PointT>> cloud_out, const float dist_thres);
+void cloudAMinusCloudB(std::shared_ptr<pcl::PointCloud<PointT>> cloudA, std::shared_ptr<pcl::PointCloud<PointT>> cloudB, std::shared_ptr<pcl::PointCloud<PointT>> cloud_out, const float dist_thres);
 
 bool isPixelInsideImage(const int H, const int W, float u, float v);
 

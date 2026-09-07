@@ -10,6 +10,7 @@
 
 
 #include "Utils.h"
+#include <memory>  // blackwell-port: PCL >=1.11 uses std::shared_ptr
 #include <opencv2/cudaimgproc.hpp>
 #include <opencv2/cudaoptflow.hpp>
 
@@ -106,7 +107,7 @@ colImage: 8UC3
 objDepth: 16UC1
 	*******************************************************************************************************/
 template<class PointT>
-void convert3dOrganizedRGB(cv::Mat &objDepth, cv::Mat &colImage, Eigen::Matrix3f &camIntrinsic, boost::shared_ptr<pcl::PointCloud<PointT>> objCloud)
+void convert3dOrganizedRGB(cv::Mat &objDepth, cv::Mat &colImage, Eigen::Matrix3f &camIntrinsic, std::shared_ptr<pcl::PointCloud<PointT>> objCloud)
 {
   const int imgWidth = objDepth.cols;
   const int imgHeight = objDepth.rows;
@@ -143,8 +144,8 @@ void convert3dOrganizedRGB(cv::Mat &objDepth, cv::Mat &colImage, Eigen::Matrix3f
       }
     }
 }
-template void convert3dOrganizedRGB(cv::Mat &objDepth, cv::Mat &colImage, Eigen::Matrix3f &camIntrinsic, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> objCloud);
-template void convert3dOrganizedRGB(cv::Mat &objDepth, cv::Mat &colImage, Eigen::Matrix3f &camIntrinsic, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal>> objCloud);
+template void convert3dOrganizedRGB(cv::Mat &objDepth, cv::Mat &colImage, Eigen::Matrix3f &camIntrinsic, std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB>> objCloud);
+template void convert3dOrganizedRGB(cv::Mat &objDepth, cv::Mat &colImage, Eigen::Matrix3f &camIntrinsic, std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal>> objCloud);
 
 
 
@@ -156,7 +157,7 @@ template void convert3dOrganizedRGB(cv::Mat &objDepth, cv::Mat &colImage, Eigen:
 //@dst: target
 //@score_thres: squared dist thres to account for final per point dist
 template<class PointT>
-float pointToPlaneICP(boost::shared_ptr<pcl::PointCloud<PointT> > src, boost::shared_ptr<pcl::PointCloud<PointT> > dst, Eigen::Matrix4f &offsetTransform, int max_iter, float rejection_angle, float max_corres_dist, float score_thres)
+float pointToPlaneICP(std::shared_ptr<pcl::PointCloud<PointT> > src, std::shared_ptr<pcl::PointCloud<PointT> > dst, Eigen::Matrix4f &offsetTransform, int max_iter, float rejection_angle, float max_corres_dist, float score_thres)
 {
 
   PointCloudNormal::Ptr modelCloud(new PointCloudNormal);
@@ -236,8 +237,8 @@ float pointToPlaneICP(boost::shared_ptr<pcl::PointCloud<PointT> > src, boost::sh
   return reg.getFitnessScore(score_thres);
 
 }
-template float pointToPlaneICP<pcl::PointXYZRGBNormal>(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > pclSegment, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > pclModel, Eigen::Matrix4f &offsetTransform, int max_iter, float rejection_angle, float max_corres_dist, float score_thres);
-template float pointToPlaneICP<pcl::PointSurfel>(boost::shared_ptr<pcl::PointCloud<pcl::PointSurfel> > pclSegment, boost::shared_ptr<pcl::PointCloud<pcl::PointSurfel> > pclModel, Eigen::Matrix4f &offsetTransform, int max_iter, float rejection_angle, float max_corres_dist, float score_thres);
+template float pointToPlaneICP<pcl::PointXYZRGBNormal>(std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > pclSegment, std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > pclModel, Eigen::Matrix4f &offsetTransform, int max_iter, float rejection_angle, float max_corres_dist, float score_thres);
+template float pointToPlaneICP<pcl::PointSurfel>(std::shared_ptr<pcl::PointCloud<pcl::PointSurfel> > pclSegment, std::shared_ptr<pcl::PointCloud<pcl::PointSurfel> > pclModel, Eigen::Matrix4f &offsetTransform, int max_iter, float rejection_angle, float max_corres_dist, float score_thres);
 
 
 
@@ -255,7 +256,7 @@ template bool isPclPointNormalValid(pcl::PointXYZRGBNormal pt);
 
 
 template<class PointT>
-void outlierRemovalRadius(boost::shared_ptr<pcl::PointCloud<PointT> > cloud_in, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_out, float radius, int min_num)
+void outlierRemovalRadius(std::shared_ptr<pcl::PointCloud<PointT> > cloud_in, std::shared_ptr<pcl::PointCloud<PointT> > cloud_out, float radius, int min_num)
 {
   pcl::RadiusOutlierRemoval<PointT> outrem;
   outrem.setInputCloud(cloud_in);
@@ -263,11 +264,11 @@ void outlierRemovalRadius(boost::shared_ptr<pcl::PointCloud<PointT> > cloud_in, 
   outrem.setMinNeighborsInRadius (min_num);
   outrem.filter(*cloud_out);
 }
-template void outlierRemovalRadius(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_in, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_out, float radius, int min_num);
+template void outlierRemovalRadius(std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_in, std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_out, float radius, int min_num);
 
 
 template<class PointT>
-void outlierRemovalStatistic(boost::shared_ptr<pcl::PointCloud<PointT> > cloud_in, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_out, float std_mul, int num)
+void outlierRemovalStatistic(std::shared_ptr<pcl::PointCloud<PointT> > cloud_in, std::shared_ptr<pcl::PointCloud<PointT> > cloud_out, float std_mul, int num)
 {
   pcl::StatisticalOutlierRemoval<PointT> sor;
   sor.setInputCloud(cloud_in);
@@ -275,24 +276,24 @@ void outlierRemovalStatistic(boost::shared_ptr<pcl::PointCloud<PointT> > cloud_i
   sor.setStddevMulThresh(std_mul);
   sor.filter(*cloud_out);
 }
-template void outlierRemovalStatistic(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_in, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_out, float std_mul, int num);
+template void outlierRemovalStatistic(std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_in, std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_out, float std_mul, int num);
 
 template<class PointT>
-void downsamplePointCloud(boost::shared_ptr<pcl::PointCloud<PointT> > cloud_in, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_out, float vox_size)
+void downsamplePointCloud(std::shared_ptr<pcl::PointCloud<PointT> > cloud_in, std::shared_ptr<pcl::PointCloud<PointT> > cloud_out, float vox_size)
 {
   pcl::VoxelGrid<PointT> vox;
   vox.setInputCloud(cloud_in);
   vox.setLeafSize(vox_size, vox_size, vox_size);
   vox.filter(*cloud_out);
 }
-template void downsamplePointCloud<pcl::PointXYZRGBNormal>(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_in, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_out, float vox_size);
-template void downsamplePointCloud<pcl::PointXYZRGB>(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > cloud_in, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > cloud_out, float vox_size);
-template void downsamplePointCloud<pcl::PointXYZ>(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ> > cloud_in, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZ> > cloud_out, float vox_size);
-template void downsamplePointCloud<pcl::PointNormal>(boost::shared_ptr<pcl::PointCloud<pcl::PointNormal> > cloud_in, boost::shared_ptr<pcl::PointCloud<pcl::PointNormal> > cloud_out, float vox_size);
-template void downsamplePointCloud<pcl::PointSurfel>(boost::shared_ptr<pcl::PointCloud<pcl::PointSurfel> > cloud_in, boost::shared_ptr<pcl::PointCloud<pcl::PointSurfel> > cloud_out, float vox_size);
+template void downsamplePointCloud<pcl::PointXYZRGBNormal>(std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_in, std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_out, float vox_size);
+template void downsamplePointCloud<pcl::PointXYZRGB>(std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > cloud_in, std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > cloud_out, float vox_size);
+template void downsamplePointCloud<pcl::PointXYZ>(std::shared_ptr<pcl::PointCloud<pcl::PointXYZ> > cloud_in, std::shared_ptr<pcl::PointCloud<pcl::PointXYZ> > cloud_out, float vox_size);
+template void downsamplePointCloud<pcl::PointNormal>(std::shared_ptr<pcl::PointCloud<pcl::PointNormal> > cloud_in, std::shared_ptr<pcl::PointCloud<pcl::PointNormal> > cloud_out, float vox_size);
+template void downsamplePointCloud<pcl::PointSurfel>(std::shared_ptr<pcl::PointCloud<pcl::PointSurfel> > cloud_in, std::shared_ptr<pcl::PointCloud<pcl::PointSurfel> > cloud_out, float vox_size);
 
 template<class PointT>
-void passFilterPointCloud(boost::shared_ptr<pcl::PointCloud<PointT> > cloud_in, boost::shared_ptr<pcl::PointCloud<PointT> > cloud_out, const std::string &axis, float min, float max)
+void passFilterPointCloud(std::shared_ptr<pcl::PointCloud<PointT> > cloud_in, std::shared_ptr<pcl::PointCloud<PointT> > cloud_out, const std::string &axis, float min, float max)
 {
   pcl::PassThrough<PointT> pass;
   pass.setInputCloud (cloud_in);
@@ -300,8 +301,8 @@ void passFilterPointCloud(boost::shared_ptr<pcl::PointCloud<PointT> > cloud_in, 
   pass.setFilterLimits (min, max);
   pass.filter (*cloud_out);
 }
-template void passFilterPointCloud<pcl::PointXYZRGBNormal>(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_in, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_out, const std::string &axis, float min, float max);
-template void passFilterPointCloud<pcl::PointXYZRGB>(boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > cloud_in, boost::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > cloud_out, const std::string &axis, float min, float max);
+template void passFilterPointCloud<pcl::PointXYZRGBNormal>(std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_in, std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGBNormal> > cloud_out, const std::string &axis, float min, float max);
+template void passFilterPointCloud<pcl::PointXYZRGB>(std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > cloud_in, std::shared_ptr<pcl::PointCloud<pcl::PointXYZRGB> > cloud_out, const std::string &axis, float min, float max);
 
 //Return argsort indices
 template <typename T>

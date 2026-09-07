@@ -51,7 +51,12 @@ set(CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH};${PROJECT_SOURCE_DIR}/../local")
 set(PCL_DIR "${PROJECT_SOURCE_DIR}/../local/share/pcl-1.10")
 
 find_package(Boost REQUIRED COMPONENTS system program_options serialization)
-find_package(PCL REQUIRED PATHS ${CMAKE_PREFIX_PATH} NO_DEFAULT_PATH)
+# blackwell-port: request only the components actually used. A bare find_package(PCL)
+# pulls in "visualization", which hard-requires VTK; the only pcl/visualization
+# includes in this project (src/Utils.h) are commented out.
+find_package(PCL REQUIRED COMPONENTS common io features filters octree
+             recognition registration sample_consensus search kdtree
+             PATHS ${CMAKE_PREFIX_PATH} NO_DEFAULT_PATH)
 find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(OpenMP REQUIRED)

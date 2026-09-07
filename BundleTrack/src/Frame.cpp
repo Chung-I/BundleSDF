@@ -10,6 +10,7 @@
 
 
 #include "Frame.h"
+#include <memory>  // blackwell-port: PCL >=1.11 uses std::shared_ptr
 
 Eigen::Vector3f Frame::model_dimensions = Eigen::Vector3f::Zero();
 zmq::context_t Frame::context;
@@ -100,8 +101,8 @@ void Frame::init()
 
   Utils::normalizeRotationMatrix(_pose_in_model);
 
-  _cloud = boost::make_shared<pcl::PointCloud<pcl::PointXYZRGBNormal>>();
-  _cloud_down = boost::make_shared<pcl::PointCloud<pcl::PointXYZRGBNormal>>();
+  _cloud = std::make_shared<pcl::PointCloud<pcl::PointXYZRGBNormal>>();
+  _cloud_down = std::make_shared<pcl::PointCloud<pcl::PointXYZRGBNormal>>();
 
   if (_roi(0)<0 || _roi(0)>=_W || _roi(1)<0 || _roi(1)>=_W || _roi(2)<0 || _roi(2)>=_H || _roi(3)<0 || _roi(3)>=_H)
   {
